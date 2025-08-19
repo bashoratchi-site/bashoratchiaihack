@@ -160,8 +160,34 @@
 </div>
 
 <script>
-  const correctKey = "5420-2913-38211-18333";
+  const correctId = "27102008,"2008121212"; // ✅ Siz kiritgan to'g'ri ID
+  const correctKey = "5420-2913-38211-18333"; // Mavjud KEY
 
+  // Enter tugmasi bilan ham login qilish
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && document.getElementById("login-page").style.display !== "none") {
+      login();
+    }
+  });
+
+  function login() {
+    let id = document.getElementById("userId").value.trim();
+    let key = document.getElementById("userKey").value.trim();
+    let errorBox = document.getElementById("error");
+
+    if (!id || !key) {
+      errorBox.innerText = "⚠️ Iltimos, ID va KEY ni kiriting.";
+      return;
+    }
+
+    if(id === correctId && key === correctKey){
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("main-page").style.display = "block";
+      errorBox.innerText = "";
+    } else {
+      errorBox.innerText = "❌ ID yoki KEY noto‘g‘ri!";
+    }
+  }
   function login() {
     let id = document.getElementById("userId").value.trim();
     let key = document.getElementById("userKey").value.trim();
