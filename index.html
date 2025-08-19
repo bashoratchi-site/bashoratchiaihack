@@ -49,13 +49,214 @@
     #error {
         margin-top: 10px;
         font-size: 14px;
-        color: red;
+        color: #ff6b6b;
+        min-height: 18px;
     }
     .get-key {
         margin-top: 15px;
         display: inline-block;
         background: #28a745;
         color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    .get-key:hover {
+        background: #1e7e34;
+    }
+
+    /* Asosiy sahifa */
+    #main-page {
+        display: none;
+        background-color: #333;
+        min-height: 100vh;
+        transition: background-color 1.2s ease;
+    }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: #444;
+    }
+    .settings-btn {
+        font-size: 22px;
+        cursor: pointer;
+    }
+    #number {
+        font-size: 80px;
+        font-weight: bold;
+        margin-top: 50px;
+        color: white;
+    }
+    .btn {
+        margin: 15px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .btn:hover {
+        background: #0056b3;
+    }
+    #settings-panel {
+        display: none;
+        background: #222;
+        padding: 15px;
+        margin: 15px;
+        border-radius: 10px;
+        text-align: left;
+    }
+    footer {
+        margin-top: 30px;
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="login-page">
+  <div class="login-box">
+    <h2>Bashoratchi Uz</h2>
+    <p>Enter your ID and KEY</p>
+    <input type="text" id="userId" placeholder="ID" required>
+    <input type="text" id="userKey" placeholder="Key" required>
+    <button onclick="login()">Login</button>
+    <div id="error"></div>
+    <!-- Telegramga yo'naltirish -->
+    <a href="https://t.me/bashoratchiuz" class="get-key">🔑 Get Key</a>
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
+<div id="main-page">
+  <header>
+      <h2>Bashoratchi Uz</h2>
+      <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+  </header>
+
+  <div id="number">0</div>
+
+  <button class="btn" onclick="startSignal()">Signal</button>
+  <button class="btn" onclick="stopSignal()">Stop</button>
+  <button class="btn" onclick="resetSettings()">Reset</button>
+
+  <div id="settings-panel">
+      <p><strong>Settings:</strong></p>
+      <label>Number shown: <input type="number" id="numberShown" value="20"></label><br>
+      <label>Speed (ms): <input type="number" id="speed" value="30"></label><br>
+      <label>Continuous (ms): <input type="number" id="continuous" value="3000"></label><br>
+      <label><input type="checkbox" id="continuousRoll"> Use continuous roll</label><br>
+      <label>Min: <input type="number" id="minVal" value="1"></label><br>
+      <label>Max: <input type="number" id="maxVal" value="5"></label><br>
+  </div>
+
+  <footer>
+      Promocode: <strong>BASHORATCHIUZ</strong> <br><small>(promocode = 90% accuracy)</small>
+  </footer>
+</div>
+
+<script>
+  // ✅ Ruxsat berilgan userlar ro'yxati
+  const allowedUsers = [
+    { id: "27102008", key: "5420-2913-38211-18333" } // Asosiy ID & KEY
+  ];
+
+  // Enter tugmasi bilan ham login qilish
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && document.getElementById("login-page").style.display !== "none") {
+      login();
+    }
+  });
+
+  function login() {
+    let id = document.getElementById("userId").value.trim();
+    let key = document.getElementById("userKey").value.trim();
+    let errorBox = document.getElementById("error");
+
+    if (!id || !key) {
+      errorBox.innerText = "⚠️ Iltimos, ID va KEY ni kiriting.";
+      return;
+    }
+
+    // ✅ Tekshiruv massiv bo‘yicha
+    let found = allowedUsers.some(user => user.id === id && user.key === key);
+
+    if(found){
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("main-page").style.display = "block";
+      errorBox.innerText = "";
+    } else {
+      errorBox.innerText = "❌ ID yoki KEY noto‘g‘ri!";
+    }
+  }
+
+  // Main page functions
+  let interval;
+  let colors = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#f39c12", "#e74c3c", "#2ecc71"];
+  let lastNum = null;
+
+  function toggleSettings() {
+      let panel = document.getElementById("settings-panel");
+      panel.style.display = (panel.style.display === "block") ? "none" : "block";
+  }
+
+  function startSignal() {
+      let numberShown = parseInt(document.getElementById("numberShown").value);
+      let speed = parseInt(document.getElementById("speed").value);
+      let continuous = parseInt(document.getElementById("continuous").value);
+      let minVal = parseInt(document.getElementById("minVal").value);
+      let maxVal = parseInt(document.getElementById("maxVal").value);
+      let useContinuous = document.getElementById("continuousRoll").checked;
+
+      if (interval) clearInterval(interval);
+
+      let count = 0;
+
+      interval = setInterval(() => {
+          let randomNum = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+          document.getElementById("number").innerText = randomNum;
+
+          // ✅ Faqat raqam chiqqandan keyin rang o'zgaradi
+          let chosenColor = colors[Math.floor(Math.random() * colors.length)];
+          document.getElementById("main-page").style.backgroundColor = chosenColor;
+
+          count++;
+          if (count >= numberShown && !useContinuous) clearInterval(interval);
+      }, speed);
+
+      if (useContinuous) {
+          setTimeout(() => clearInterval(interval), continuous);
+      }
+  }
+
+  function stopSignal() {
+      clearInterval(interval);
+  }
+
+  function resetSettings() {
+      document.getElementById("numberShown").value = 20;
+      document.getElementById("speed").value = 30;
+      document.getElementById("continuous").value = 3000;
+      document.getElementById("continuousRoll").checked = false;
+      document.getElementById("minVal").value = 1;
+      document.getElementById("maxVal").value = 5;
+      document.getElementById("number").innerText = 0;
+      document.getElementById("main-page").style.backgroundColor = "#333";
+      lastNum = null;
+  }
+
+  // ✅ Keyin yangi user qo'shish uchun:
+  // allowedUsers.push({id: "YANGI_ID", key: "YANGI_KEY"});
+</script>
+
+</body>
+</html>        color: white;
         padding: 10px 20px;
         border-radius: 8px;
         text-decoration: none;
